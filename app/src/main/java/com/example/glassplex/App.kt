@@ -1,6 +1,7 @@
 package com.example.glassplex
 
 import android.app.Application
+import com.example.glassplex.PlexConfig
 import com.example.glassplex.plex.PlexServerApi
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -18,7 +19,7 @@ class App: Application() {
         val log = HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC }
         OkHttpClient.Builder().addInterceptor(log).build()
       }
-      single { "http://192.168.1.10:32400" } // TODO: make editable in Settings
+      single { PlexConfig.SERVER_BASE } // TODO: make editable in Settings
       single {
         Retrofit.Builder()
           .baseUrl(get<String>())

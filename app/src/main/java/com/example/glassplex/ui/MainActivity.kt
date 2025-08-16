@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.MaterialTheme
@@ -17,8 +18,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
+import android.content.Intent
 import coil.compose.AsyncImage
 import com.example.glassplex.plex.*
+import com.example.glassplex.PlexConfig
+import com.example.glassplex.ui.player.PlayerActivity
 import org.koin.android.ext.android.inject
 import androidx.compose.foundation.lazy.LazyRow
 
@@ -70,9 +75,15 @@ fun RowSection(title: String, videos: List<Video>, token: String) {
 
 @Composable
 fun PosterCard(video: Video, token: String) {
-  val server = "http://192.168.1.10:32400" // TODO: from settings
+  val server = PlexConfig.SERVER_BASE // TODO: from settings
   val poster = posterUrl(server, video.thumb, token)
-  Column(Modifier.width(160.dp)) {
+  val stream = streamUrlHls(server, video.ratingKey, token)
+  val ctx = LocalContext.current
+  Column(
+    Modifier.width(160.dp).clickable {
+      ctx.startActivity(Intent(ctx, PlayerActivity::class.java).putExtra("STREAM_URL", stream))
+    }
+  ) {
     Box(Modifier.height(90.dp)) {
       AsyncImage(
         model = poster,
@@ -87,7 +98,7 @@ fun PosterCard(video: Video, token: String) {
 @Composable
 fun HeroCard(video: Video?, token: String) {
   if (video == null) return
-  val server = "http://192.168.1.10:32400" // TODO: from settings
+  val server = PlexConfig.SERVER_BASE // TODO: from settings
   val art = posterUrl(server, video.art ?: video.thumb, token)
   Box(Modifier.fillMaxWidth().height(160.dp)) {
     AsyncImage(
